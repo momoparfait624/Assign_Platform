@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% block title %}{{ devoir.titre }} — EduDevoir{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+
+    <div class="mb-4" data-aos="fade-down">
+      <a href="{% url 'dashboard_eleve' %}" class="text-muted text-decoration-none small">
+        <i class="fas fa-arrow-left me-1"></i>Retour au dashboard
+      </a>
+    </div>
+
+    <!-- Carte devoir -->
+    <div class="card mb-4" data-aos="fade-up">
+      <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
+          <div>
+            <h3 class="fw-700 mb-1" style="color:#1E1B4B">{{ devoir.titre }}</h3>
+            <span class="badge bg-light text-dark">
+              <i class="fas fa-layer-group me-1"></i>{{ devoir.classe.nom }}
+            </span>
+          </div>
+
+          <!-- Badge deadline -->
+          {% if expire %}
+            <div class="text-center">
+              <span class="badge-deadline badge-danger-soft px-3 py-2" style="font-size:13px">
+                <i class="fas fa-times-circle me-1"></i>Délai dépassé
+              </span>
+            </div>
+          {% else %}
+            <div class="text-center p-3 rounded-3" style="background:#EEF2FF;min-width:140px">
+              <div class="text-primary small fw-600">Deadline</div>
+              <div class="fw-700" style="color:#1E1B4B">{{ devoir.deadline|date:"d/m/Y" }}</div>
+              <div class="text-muted small">{{ devoir.deadline|date:"H:i" }}</div>
+            </div>
+          {% endif %}
+        </div>
+
+        <hr style="border-color:#F1F5F9">
+
+        <h6 class="fw-600 mb-2 text-muted text-uppercase" style="font-size:0.78rem;letter-spacing:0.5px">
+          Consignes
+        </h6>
+        <p style="line-height:1.8;color:#374151">{{ devoir.description }}</p>
+
+        {% if devoir.fichier %}
+        <div class="mt-3 p-3 rounded-3 d-flex align-items-center gap-3"
+          style="background:#F8FAFC;border:1px solid #E5E7EB">
+          <i class="fas fa-file-pdf fa-2x text-danger"></i>
+          <div class="flex-grow-1">
+            <div class="fw-600">Fichier joint par l'enseignant</div>
+            <div class="text-muted small">Cliquez pour télécharger</div>
+          </div>
+         <a href="{% url 'servir_devoir' devoir.pk %}" target="_blank" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-download me-2"></i>Télécharger
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Zone soumission -->
+    {% if soumission %}
+    <!-- Devoir déjà soumis -->
+    <div class="card border-0" style="background:linear-gradient(135deg,#D1FAE5,#A7F3D0)" data-aos="fade-up">
+      <div class="card-body p-4 text-center">
+        <div style="width:64px;height:64px;background:#10B981;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+          <i class="fas fa-check fa-2x text-white"></i>
+        </div>
+        <h5 class="fw-700" style="color:#065F46">Devoir soumis avec succès !</h5>
+        <p style="color:#047857">Soumis le {{ soumission.date_soumission|date:"d/m/Y à H:i" }}</p>
+
+        <div class="d-flex justify-content-center gap-3 mt-3 flex-wrap">
+          <a href="{% url 'servir_soumission' soumission.pk %}" target="_blank" class="btn btn-primary btn-sm">
+            <i class="fas fa-eye me-2"></i>Voir
+          </a>
+          {% if soumission.note %}
+          <div class="px-4 py-2 rounded-3 fw-700" style="background:white;color:#059669;font-size:1.1rem">
+            <i class="fas fa-star me-2 text-warning"></i>Note : {{ soumission.note }}/20
+          </div>
+          {% else %}
+          <span class="badge-deadline badge-warning-soft px-3 py-2" style="font-size:13px">
+            <i class="fas fa-hourglass-half me-1"></i>En attente de correction
+          </span>
+          {% endif %}
+        </div>
+
+        {% if soumission.commentaire %}
+        <div class="mt-3 p-3 rounded-3 text-start" style="background:rgba(255,255,255,0.6)">
+          <div class="fw-600 small text-muted mb-1">Votre commentaire</div>
+          <div style="color:#065F46">{{ soumission.commentaire }}</div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    {% elif expire %}
+    <!-- Deadline dépassée -->
+    <div class="card border-0" style="background:#FEE2E2" data-aos="fade-up">
+      <div class="card-body p-4 text-center">
+        <i class="fas fa-lock fa-3x mb-3" style="color:#DC2626"></i>
+        <h5 class="fw-700" style="color:#991B1B">Délai dépassé</h5>
+        <p style="color:#B91C1C">
+          La deadline était le {{ devoir.deadline|date:"d/m/Y à H:i" }}.
+          Il n'est plus possible de soumettre ce devoir.
+        </p>
+      </div>
+    </div>
+
+    {% else %}
+    <!-- Formulaire de soumission -->
+    <div class="card" data-aos="fade-up">
+      <div class="card-header">
+        <i class="fas fa-upload me-2 text-primary"></i>Soumettre mon devoir
+      </div>
+      <div class="card-body p-4">
+        <form method="post" action="{% url 'soumettre_devoir' devoir.pk %}" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label class="form-label fw-600">
+              Mon fichier <span class="text-danger">*</span>
+            </label>
+            <div class="upload-zone border rounded-3 p-4 text-center"
+              style="border-style:dashed!important;cursor:pointer;transition:all 0.2s"
+              onclick="document.getElementById('rendu-input').click()"
+              ondragover="this.style.borderColor='#0EA5E9';this.style.background='#E0F2FE'"
+              ondragleave="this.style.borderColor='';this.style.background=''">
+              <i class="fas fa-cloud-upload-alt fa-2x mb-2" style="color:#0EA5E9"></i>
+              <div class="fw-500 text-muted">Glissez votre fichier ou cliquez</div>
+              <div class="text-muted small mt-1">PDF, Word, Image — max 10 Mo</div>
+              <div id="rendu-name" class="mt-2 fw-500" style="display:none;color:#0EA5E9"></div>
+            </div>
+            <input type="file" name="fichier" id="rendu-input" class="d-none"
+              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required
+              onchange="showRenduName(this)">
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-600">Commentaire <span class="text-muted">(optionnel)</span></label>
+            <textarea name="commentaire" class="form-control" rows="3"
+              placeholder="Un message pour votre enseignant..."></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100 py-2">
+            <i class="fas fa-paper-plane me-2"></i>Envoyer mon devoir
+          </button>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showRenduName(input) {
+  const display = document.getElementById('rendu-name');
+  if (input.files && input.files[0]) {
+    display.textContent = '✓ ' + input.files[0].name;
+    display.style.display = 'block';
+  }
+}
+</script>
+{% endblock %}

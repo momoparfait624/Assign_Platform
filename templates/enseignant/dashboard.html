@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard Enseignant — EduDevoir{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="page-header" data-aos="fade-down">
+  <div class="d-flex justify-content-between align-items-center">
+    <div>
+      <h1><i class="fas fa-chalkboard-teacher me-2"></i>Bonjour, {{ user.prenom }} 👋</h1>
+      <p>Gérez vos classes et suivez les devoirs de vos élèves</p>
+    </div>
+    <a href="{% url 'creer_classe' %}" class="btn btn-light fw-600">
+      <i class="fas fa-plus me-2"></i>Nouvelle classe
+    </a>
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="row g-3 mb-4">
+  <div class="col-md-3" data-aos="fade-up" data-aos-delay="0">
+    <div class="stat-card purple d-flex justify-content-between align-items-center">
+      <div>
+        <div class="stat-number">{{ classes.count }}</div>
+        <div class="stat-label">Classes actives</div>
+      </div>
+      <i class="fas fa-layer-group stat-icon"></i>
+    </div>
+  </div>
+  <div class="col-md-3" data-aos="fade-up" data-aos-delay="50">
+    <div class="stat-card blue d-flex justify-content-between align-items-center">
+      <div>
+        <div class="stat-number">{{ total_eleves }}</div>
+        <div class="stat-label">Élèves inscrits</div>
+      </div>
+      <i class="fas fa-users stat-icon"></i>
+    </div>
+  </div>
+  <div class="col-md-3" data-aos="fade-up" data-aos-delay="100">
+    <div class="stat-card green d-flex justify-content-between align-items-center">
+      <div>
+        <div class="stat-number">{{ total_devoirs }}</div>
+        <div class="stat-label">Devoirs créés</div>
+      </div>
+      <i class="fas fa-file-alt stat-icon"></i>
+    </div>
+  </div>
+  <div class="col-md-3" data-aos="fade-up" data-aos-delay="150">
+    <div class="stat-card orange d-flex justify-content-between align-items-center">
+      <div>
+        <div class="stat-number">{{ total_soumissions }}</div>
+        <div class="stat-label">Soumissions reçues</div>
+      </div>
+      <i class="fas fa-check-circle stat-icon"></i>
+    </div>
+  </div>
+</div>
+
+<!-- Liste des classes -->
+<div class="card" data-aos="fade-up">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span><i class="fas fa-layer-group me-2 text-primary"></i>Mes classes</span>
+    <a href="{% url 'creer_classe' %}" class="btn btn-primary btn-sm">
+      <i class="fas fa-plus me-1"></i>Créer
+    </a>
+  </div>
+  <div class="card-body p-0">
+    {% if classes %}
+    <div class="row g-3 p-3">
+      {% for classe in classes %}
+      <div class="col-md-6" data-aos="fade-up">
+        <div class="card h-100 border" style="box-shadow:none">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div>
+                <h5 class="fw-700 mb-1">{{ classe.nom }}</h5>
+                <p class="text-muted small mb-0">{{ classe.description|truncatechars:60 }}</p>
+              </div>
+              <span class="code-acces" style="font-size:0.9rem;padding:6px 12px">{{ classe.code_acces }}</span>
+            </div>
+            <div class="d-flex gap-3 text-muted small mb-3">
+              <span><i class="fas fa-users me-1 text-primary"></i>{{ classe.nombre_eleves }} élève(s)</span>
+              <span><i class="fas fa-file-alt me-1 text-primary"></i>{{ classe.devoirs.count }} devoir(s)</span>
+            </div>
+            <div class="d-flex gap-2">
+              <a href="{% url 'detail_classe' classe.pk %}" class="btn btn-primary btn-sm flex-fill">
+                <i class="fas fa-eye me-1"></i>Voir
+              </a>
+              <a href="{% url 'supprimer_classe' classe.pk %}" class="btn btn-outline-danger btn-sm">
+                <i class="fas fa-trash"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <i class="fas fa-layer-group"></i>
+      <h5>Aucune classe pour l'instant</h5>
+      <p>Créez votre première classe pour commencer à donner des devoirs.</p>
+      <a href="{% url 'creer_classe' %}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>Créer une classe
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

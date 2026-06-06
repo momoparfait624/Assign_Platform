@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% block title %}Créer un devoir — {{ classe.nom }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+
+    <div class="mb-4" data-aos="fade-down">
+      <a href="{% url 'detail_classe' classe.pk %}" class="text-muted text-decoration-none small">
+        <i class="fas fa-arrow-left me-1"></i>Retour à {{ classe.nom }}
+      </a>
+      <h2 class="fw-700 mt-2" style="color:#1E1B4B">Créer un devoir</h2>
+      <p class="text-muted">Classe : <strong>{{ classe.nom }}</strong></p>
+    </div>
+
+    <div class="card p-4" data-aos="fade-up">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="mb-3">
+          <label class="form-label">Titre du devoir <span class="text-danger">*</span></label>
+          <input type="text" name="titre" class="form-control" placeholder="Ex: Exercices chapitre 3 — Algèbre" required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Consignes <span class="text-danger">*</span></label>
+          <textarea name="description" class="form-control" rows="5"
+            placeholder="Décrivez le travail à faire, les attentes, les ressources à utiliser..." required></textarea>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">
+            <i class="fas fa-calendar-alt me-1 text-primary"></i>
+            Deadline <span class="text-danger">*</span>
+          </label>
+          <input type="datetime-local" name="deadline" class="form-control" required>
+          <div class="form-text">
+            <i class="fas fa-info-circle me-1"></i>
+            Les élèves seront notifiés 2 jours et 1 jour avant cette date.
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label">Fichier joint <span class="text-muted">(optionnel)</span></label>
+          <div class="upload-zone border rounded-3 p-4 text-center" id="upload-zone"
+            style="border-style:dashed!important;cursor:pointer;transition:all 0.2s"
+            ondragover="this.style.borderColor='#4F46E5';this.style.background='#EEF2FF'"
+            ondragleave="this.style.borderColor='';this.style.background=''"
+            onclick="document.getElementById('fichier-input').click()">
+            <i class="fas fa-cloud-upload-alt fa-2x mb-2 text-muted"></i>
+            <div class="fw-500 text-muted">Glissez un fichier ici ou cliquez pour parcourir</div>
+            <div class="text-muted small mt-1">PDF, Word, Image — max 10 Mo</div>
+            <div id="file-name" class="mt-2 text-primary fw-500" style="display:none"></div>
+          </div>
+          <input type="file" name="fichier" id="fichier-input" class="d-none"
+            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+            onchange="showFileName(this)">
+        </div>
+
+        <!-- Récap avant envoi -->
+        <div class="alert alert-info mb-4" style="border-radius:12px">
+          <i class="fas fa-bell me-2"></i>
+          <strong>Rappel automatique :</strong> dès que vous soumettez ce devoir, vos
+          <strong>{{ classe.nombre_eleves }} élève(s)</strong> seront notifiés immédiatement,
+          puis 2 jours et 1 jour avant la deadline.
+        </div>
+
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-primary flex-fill py-2">
+            <i class="fas fa-paper-plane me-2"></i>Publier le devoir
+          </button>
+          <a href="{% url 'detail_classe' classe.pk %}" class="btn btn-outline-secondary px-4">
+            Annuler
+          </a>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showFileName(input) {
+  const display = document.getElementById('file-name');
+  if (input.files && input.files[0]) {
+    display.textContent = '✓ ' + input.files[0].name;
+    display.style.display = 'block';
+    document.getElementById('upload-zone').style.borderColor = '#10B981';
+    document.getElementById('upload-zone').style.background = '#F0FDF4';
+  }
+}
+</script>
+{% endblock %}

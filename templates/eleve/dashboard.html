@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard Élève — EduDevoir{% endblock %}
+
+{% block content %}
+<div class="page-header" style="background:linear-gradient(135deg,#0EA5E9,#4F46E5)" data-aos="fade-down">
+  <div class="d-flex justify-content-between align-items-center">
+    <div>
+      <h1><i class="fas fa-user-graduate me-2"></i>Bonjour, {{ user.prenom }} 👋</h1>
+      <p>Retrouvez tous vos devoirs à rendre ici</p>
+    </div>
+    <a href="{% url 'rejoindre_classe' %}" class="btn btn-light fw-600">
+      <i class="fas fa-sign-in-alt me-2"></i>Rejoindre une classe
+    </a>
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="row g-3 mb-4">
+  <div class="col-md-4" data-aos="fade-up">
+    <div class="stat-card blue d-flex justify-content-between align-items-center">
+      <div>
+        <div class="stat-number">{{ inscriptions.count }}</div>
+        <div class="stat-label">Classes rejointes</div>
+      </div>
+      <i class="fas fa-school stat-icon"></i>
+    </div>
+  </div>
+  <div class="col-md-4" data-aos="fade-up" data-aos-delay="50">
+    <div class="stat-card purple d-flex justify-content-between align-items-center">
+      <div>
+        <div class="stat-number">{{ devoirs.count }}</div>
+        <div class="stat-label">Devoirs à faire</div>
+      </div>
+      <i class="fas fa-book-open stat-icon"></i>
+    </div>
+  </div>
+  <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+    <div class="stat-card green d-flex justify-content-between align-items-center">
+      <div>
+        <div class="stat-number">{{ user.soumissions.count }}</div>
+        <div class="stat-label">Devoirs soumis</div>
+      </div>
+      <i class="fas fa-check-double stat-icon"></i>
+    </div>
+  </div>
+</div>
+
+<!-- Devoirs -->
+<div class="card" data-aos="fade-up">
+  <div class="card-header">
+    <i class="fas fa-tasks me-2 text-primary"></i>Mes devoirs à rendre
+  </div>
+  <div class="card-body p-0">
+    {% if devoirs %}
+    <div class="table-responsive">
+      <table class="table mb-0">
+        <thead>
+          <tr>
+            <th>Devoir</th>
+            <th>Classe</th>
+            <th>Deadline</th>
+            <th>Statut</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for devoir in devoirs %}
+          {% now "Y-m-d H:i" as maintenant %}
+          <tr>
+            <td>
+              <div class="fw-600">{{ devoir.titre }}</div>
+              <small class="text-muted">{{ devoir.description|truncatechars:50 }}</small>
+            </td>
+            <td><span class="badge bg-light text-dark">{{ devoir.classe.nom }}</span></td>
+            <td>
+              <div class="fw-500">{{ devoir.deadline|date:"d/m/Y" }}</div>
+              <small class="text-muted">{{ devoir.deadline|date:"H:i" }}</small>
+            </td>
+            <td>
+              {% if devoir.est_expire %}
+                <span class="badge-deadline badge-danger-soft">Expiré</span>
+              {% else %}
+                <span class="badge-deadline badge-success-soft">En cours</span>
+              {% endif %}
+            </td>
+            <td>
+              <a href="{% url 'detail_devoir' devoir.pk %}" class="btn btn-primary btn-sm">
+                <i class="fas fa-arrow-right me-1"></i>Voir
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <i class="fas fa-book-open"></i>
+      <h5>Aucun devoir pour l'instant</h5>
+      <p>Rejoignez une classe pour recevoir des devoirs.</p>
+      <a href="{% url 'rejoindre_classe' %}" class="btn btn-primary">
+        <i class="fas fa-sign-in-alt me-2"></i>Rejoindre une classe
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+<!-- Classes rejointes -->
+<div class="card mt-4" data-aos="fade-up">
+  <div class="card-header">
+    <span><i class="fas fa-school me-2 text-primary"></i>Mes classes</span>
+  </div>
+  <div class="card-body p-0">
+    {% if inscriptions %}
+    <div class="table-responsive">
+      <table class="table mb-0">
+        <thead>
+          <tr>
+            <th>Classe</th>
+            <th>Enseignant</th>
+            <th>Devoirs</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for inscription in inscriptions %}
+          <tr>
+            <td>
+              <div class="fw-600">{{ inscription.classe.nom }}</div>
+              <small class="text-muted">
+                {{ inscription.classe.description|truncatechars:40|default:"Aucune description" }}
+              </small>
+            </td>
+            <td>
+              <div class="fw-500">
+                {{ inscription.classe.enseignant.prenom }}
+                {{ inscription.classe.enseignant.nom }}
+              </div>
+            </td>
+            <td>
+              <span class="badge" style="background:#EEF2FF;color:#4F46E5;border-radius:8px">
+                {{ inscription.classe.devoirs.count }} devoir(s)
+              </span>
+            </td>
+            <td>
+              <a href="{% url 'quitter_classe' inscription.classe.pk %}"
+                class="btn btn-outline-danger btn-sm"
+                onclick="return confirm('Voulez-vous vraiment quitter {{ inscription.classe.nom }} ?')">
+                <i class="fas fa-sign-out-alt me-1"></i>Quitter
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <i class="fas fa-school"></i>
+      <h6>Aucune classe rejointe</h6>
+      <p class="small">Rejoignez une classe avec le code fourni par votre enseignant.</p>
+      <a href="{% url 'rejoindre_classe' %}" class="btn btn-primary btn-sm mt-2">
+        <i class="fas fa-plus me-1"></i>Rejoindre une classe
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

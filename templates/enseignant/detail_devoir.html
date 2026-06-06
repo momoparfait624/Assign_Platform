@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% block title %}{{ devoir.titre }} — EduDevoir{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-9">
+
+    <div class="mb-4" data-aos="fade-down">
+      <a href="{% url 'detail_classe' devoir.classe.pk %}" class="text-muted text-decoration-none small">
+        <i class="fas fa-arrow-left me-1"></i>Retour à {{ devoir.classe.nom }}
+      </a>
+    </div>
+
+    <!-- Infos du devoir -->
+    <div class="card mb-4" data-aos="fade-up">
+      <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
+          <div>
+            <h3 class="fw-700 mb-1" style="color:#1E1B4B">{{ devoir.titre }}</h3>
+            <span class="badge bg-light text-dark">
+              <i class="fas fa-layer-group me-1"></i>{{ devoir.classe.nom }}
+            </span>
+          </div>
+          <div class="text-center p-3 rounded-3" style="background:#EEF2FF;min-width:160px">
+            <div class="text-primary small fw-600">Deadline</div>
+            <div class="fw-700" style="color:#1E1B4B">{{ devoir.deadline|date:"d/m/Y" }}</div>
+            <div class="text-muted small">{{ devoir.deadline|date:"H:i" }}</div>
+          </div>
+        </div>
+
+        <hr style="border-color:#F1F5F9">
+        <h6 class="fw-600 mb-2 text-muted text-uppercase" style="font-size:0.78rem;letter-spacing:0.5px">Consignes</h6>
+        <p style="line-height:1.8;color:#374151">{{ devoir.description }}</p>
+
+        {% if devoir.fichier %}
+        <div class="mt-3 p-3 rounded-3 d-flex align-items-center gap-3" style="background:#F8FAFC;border:1px solid #E5E7EB">
+          <i class="fas fa-file-pdf fa-2x text-danger"></i>
+          <div class="flex-grow-1">
+            <div class="fw-600">Fichier joint</div>
+            <div class="text-muted small">Cliquez pour télécharger</div>
+          </div>
+          <a href="{% url 'servir_devoir' devoir.pk %}" target="_blank" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-download me-1"></i>Télécharger
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Statistiques soumissions -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-4" data-aos="fade-up">
+        <div class="stat-card purple d-flex justify-content-between align-items-center">
+          <div>
+            <div class="stat-number">{{ nb_inscrits }}</div>
+            <div class="stat-label">Élèves inscrits</div>
+          </div>
+          <i class="fas fa-users stat-icon"></i>
+        </div>
+      </div>
+      <div class="col-md-4" data-aos="fade-up" data-aos-delay="50">
+        <div class="stat-card green d-flex justify-content-between align-items-center">
+          <div>
+            <div class="stat-number">{{ soumissions.count }}</div>
+            <div class="stat-label">Rendus reçus</div>
+          </div>
+          <i class="fas fa-check-circle stat-icon"></i>
+        </div>
+      </div>
+      <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+        <div class="stat-card orange d-flex justify-content-between align-items-center">
+          <div>
+            <div class="stat-number">{{ nb_inscrits|add:"-"|add:soumissions.count }}</div>
+            <div class="stat-label">En attente</div>
+          </div>
+          <i class="fas fa-hourglass-half stat-icon"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Liste des soumissions -->
+    <div class="card" data-aos="fade-up">
+      <div class="card-header">
+        <i class="fas fa-inbox me-2 text-primary"></i>Copies rendues
+      </div>
+      <div class="card-body p-0">
+        {% if soumissions %}
+        <div class="table-responsive">
+          <table class="table mb-0">
+            <thead>
+              <tr>
+                <th>Élève</th>
+                <th>Soumis le</th>
+                <th>Commentaire</th>
+                <th>Note</th>
+                <th>Fichier</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for soumission in soumissions %}
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    {% if soumission.eleve.avatar %}
+                      <img src="{{ soumission.eleve.avatar.url }}" class="avatar" style="width:32px;height:32px">
+                    {% else %}
+                      <div class="avatar-placeholder" style="width:32px;height:32px;font-size:0.75rem">
+                        {{ soumission.eleve.prenom|first }}{{ soumission.eleve.nom|first }}
+                      </div>
+                    {% endif %}
+                    <div>
+                      <div class="fw-600" style="font-size:0.9rem">
+                        {{ soumission.eleve.prenom }} {{ soumission.eleve.nom }}
+                      </div>
+                      <div class="text-muted" style="font-size:0.78rem">{{ soumission.eleve.matricule|default:"—" }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td style="font-size:0.85rem">
+                  {{ soumission.date_soumission|date:"d/m/Y" }}<br>
+                  <span class="text-muted">{{ soumission.date_soumission|date:"H:i" }}</span>
+                </td>
+                <td style="font-size:0.85rem;color:#6B7280">
+                  {{ soumission.commentaire|default:"—"|truncatechars:40 }}
+                </td>
+                <td>
+                  {% if soumission.note %}
+                    <span class="badge-deadline badge-success-soft">{{ soumission.note }}/20</span>
+                  {% else %}
+                    <span class="badge-deadline badge-warning-soft">Non noté</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <a href="{% url 'servir_soumission' soumission.pk %}" target="_blank" class="btn btn-primary btn-sm">
+                    <i class="fas fa-eye me-1"></i>Voir
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+          <i class="fas fa-inbox"></i>
+          <h6>Aucune soumission pour l'instant</h6>
+          <p class="small">Les élèves n'ont pas encore rendu ce devoir.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

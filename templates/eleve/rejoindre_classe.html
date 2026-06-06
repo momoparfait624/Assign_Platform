@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Rejoindre une classe — EduDevoir{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height:70vh">
+  <div class="col-md-5">
+
+    <div class="text-center mb-4" data-aos="fade-down">
+      <div style="width:64px;height:64px;background:linear-gradient(135deg,#0EA5E9,#4F46E5);border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+        <i class="fas fa-sign-in-alt fa-2x text-white"></i>
+      </div>
+      <h2 class="fw-700" style="color:#1E1B4B">Rejoindre une classe</h2>
+      <p class="text-muted">Entrez le code fourni par votre enseignant</p>
+    </div>
+
+    <div class="card p-4" data-aos="fade-up">
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-4">
+          <label class="form-label fw-600">Code d'accès</label>
+          <input type="text" name="code_acces" class="form-control text-center fw-700"
+            style="font-size:1.5rem;letter-spacing:6px;font-family:monospace;padding:16px"
+            placeholder="A3F9B2C1" maxlength="8" required
+            oninput="this.value=this.value.toUpperCase()">
+          <div class="form-text text-center">
+            Le code contient 8 caractères (lettres et chiffres)
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary w-100 py-2">
+          <i class="fas fa-check me-2"></i>Rejoindre la classe
+        </button>
+      </form>
+      <hr class="my-3">
+      <a href="{% url 'dashboard_eleve' %}" class="btn btn-outline-secondary w-100">
+        <i class="fas fa-arrow-left me-2"></i>Retour au dashboard
+      </a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

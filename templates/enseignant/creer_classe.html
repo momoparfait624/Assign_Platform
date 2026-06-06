@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Créer une classe — EduDevoir{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+
+    <div class="mb-4" data-aos="fade-down">
+      <a href="{% url 'dashboard_enseignant' %}" class="text-muted text-decoration-none small">
+        <i class="fas fa-arrow-left me-1"></i>Retour au dashboard
+      </a>
+      <h2 class="fw-700 mt-2" style="color:#1E1B4B">Créer une nouvelle classe</h2>
+      <p class="text-muted">Les élèves pourront la rejoindre avec un code d'accès unique.</p>
+    </div>
+
+    <div class="card p-4" data-aos="fade-up">
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label fw-600">
+            Nom de la classe <span class="text-danger">*</span>
+          </label>
+          <input type="text" name="nom" class="form-control"
+            placeholder="Ex: Mathématiques — Terminale A" required>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label fw-600">
+            Description <span class="text-muted">(optionnel)</span>
+          </label>
+          <textarea name="description" class="form-control" rows="3"
+            placeholder="Décrivez le contenu ou l'objectif de cette classe..."></textarea>
+        </div>
+
+        <div class="alert alert-info" style="border-radius:12px;font-size:0.9rem">
+          <i class="fas fa-info-circle me-2"></i>
+          Un <strong>code d'accès unique de 8 caractères</strong> sera généré automatiquement.
+          Partagez-le à vos élèves pour qu'ils rejoignent la classe.
+        </div>
+
+        <div class="d-flex gap-2 mt-3">
+          <button type="submit" class="btn btn-primary flex-fill py-2">
+            <i class="fas fa-plus me-2"></i>Créer la classe
+          </button>
+          <a href="{% url 'dashboard_enseignant' %}" class="btn btn-outline-secondary px-4">
+            Annuler
+          </a>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

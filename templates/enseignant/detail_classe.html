@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+{% block title %}{{ classe.nom }} — EduDevoir{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="page-header" data-aos="fade-down">
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div>
+      <div class="mb-2">
+        <a href="{% url 'dashboard_enseignant' %}" class="text-white opacity-75 text-decoration-none small">
+          <i class="fas fa-arrow-left me-1"></i>Retour au dashboard
+        </a>
+      </div>
+      <h1><i class="fas fa-layer-group me-2"></i>{{ classe.nom }}</h1>
+      <p>{{ classe.description|default:"Aucune description" }}</p>
+    </div>
+    <div class="text-end">
+      <div class="text-white opacity-75 small mb-1">Code d'accès</div>
+      <div class="code-acces" style="background:rgba(255,255,255,0.2);color:white;letter-spacing:6px">
+        {{ classe.code_acces }}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Stats rapides -->
+<div class="row g-3 mb-4">
+  <div class="col-md-4" data-aos="fade-up">
+    <div class="stat-card purple d-flex justify-content-between align-items-center">
+      <div>
+        <div class="stat-number">{{ classe.nombre_eleves }}</div>
+        <div class="stat-label">Élèves inscrits</div>
+      </div>
+      <i class="fas fa-users stat-icon"></i>
+    </div>
+  </div>
+  <div class="col-md-4" data-aos="fade-up" data-aos-delay="50">
+    <div class="stat-card blue d-flex justify-content-between align-items-center">
+      <div>
+        <div class="stat-number">{{ devoirs.count }}</div>
+        <div class="stat-label">Devoirs donnés</div>
+      </div>
+      <i class="fas fa-file-alt stat-icon"></i>
+    </div>
+  </div>
+  <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+    <div class="stat-card green d-flex justify-content-between align-items-center">
+      <div>
+        <div class="stat-number">
+          {% with total=0 %}
+            {% for d in devoirs %}{{ d.nombre_soumissions|add:total }}{% endfor %}
+          {% endwith %}
+        </div>
+        <div class="stat-label">Rendus reçus</div>
+      </div>
+      <i class="fas fa-check-circle stat-icon"></i>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+
+  <!-- ══ COLONNE GAUCHE : Élèves ══ -->
+  <div class="col-lg-5" data-aos="fade-right">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-users me-2 text-primary"></i>Élèves inscrits</span>
+        <span class="badge" style="background:#EEF2FF;color:#4F46E5;border-radius:8px;padding:4px 10px">
+          {{ classe.nombre_eleves }}
+        </span>
+      </div>
+      <div class="card-body p-0">
+        {% if inscriptions %}
+        <div class="table-responsive">
+          <table class="table mb-0">
+            <thead>
+              <tr>
+                <th>Élève</th>
+                <th>Matricule</th>
+                <th>Établissement</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for inscription in inscriptions %}
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    {% if inscription.eleve.avatar %}
+                      <img src="{{ inscription.eleve.avatar.url }}" class="avatar" style="width:32px;height:32px">
+                    {% else %}
+                      <div class="avatar-placeholder" style="width:32px;height:32px;font-size:0.75rem">
+                        {{ inscription.eleve.prenom|first }}{{ inscription.eleve.nom|first }}
+                      </div>
+                    {% endif %}
+                    <div>
+                      <div class="fw-600" style="font-size:0.9rem">
+                        {{ inscription.eleve.prenom }} {{ inscription.eleve.nom }}
+                      </div>
+                      <div class="text-muted" style="font-size:0.78rem">{{ inscription.eleve.email }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="badge bg-light text-dark" style="font-size:0.78rem">
+                    {{ inscription.eleve.matricule|default:"—" }}
+                  </span>
+                </td>
+                <td style="font-size:0.85rem;color:#6B7280">
+                  {{ inscription.eleve.etablissement|default:"—"|truncatechars:20 }}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="empty-state" style="padding:40px 20px">
+          <i class="fas fa-user-plus"></i>
+          <h6>Aucun élève inscrit</h6>
+          <p class="small">Partagez le code <strong>{{ classe.code_acces }}</strong> à vos élèves</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ COLONNE DROITE : Devoirs ══ -->
+  <div class="col-lg-7" data-aos="fade-left">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-file-alt me-2 text-primary"></i>Devoirs de la classe</span>
+        <a href="{% url 'creer_devoir' classe.pk %}" class="btn btn-primary btn-sm">
+          <i class="fas fa-plus me-1"></i>Nouveau devoir
+        </a>
+      </div>
+      <div class="card-body p-0">
+        {% if devoirs %}
+        {% for devoir in devoirs %}
+        <div class="p-3 border-bottom" style="transition:background 0.2s" onmouseover="this.style.background='#F8FAFC'" onmouseout="this.style.background='white'">
+          <div class="d-flex justify-content-between align-items-start">
+            <div class="flex-grow-1">
+              <div class="fw-600 mb-1">{{ devoir.titre }}</div>
+              <div class="text-muted small mb-2">{{ devoir.description|truncatechars:80 }}</div>
+              <div class="d-flex align-items-center gap-3 flex-wrap">
+
+                <!-- Deadline avec couleur dynamique -->
+                {% if devoir.est_expire %}
+                  <span class="badge-deadline badge-danger-soft">
+                    <i class="fas fa-clock me-1"></i>Expiré le {{ devoir.deadline|date:"d/m/Y" }}
+                  </span>
+                {% else %}
+                  <span class="badge-deadline badge-success-soft">
+                    <i class="fas fa-calendar me-1"></i>{{ devoir.deadline|date:"d/m/Y à H:i" }}
+                  </span>
+                {% endif %}
+
+                <!-- Progression soumissions -->
+                <span class="badge-deadline" style="background:#EEF2FF;color:#4F46E5">
+                  <i class="fas fa-check me-1"></i>
+                  {{ devoir.nombre_soumissions }}/{{ classe.nombre_eleves }} rendus
+                </span>
+
+                {% if devoir.fichier %}
+                <span class="badge-deadline" style="background:#F0FDF4;color:#166534">
+                  <i class="fas fa-paperclip me-1"></i>Fichier joint
+                </span>
+                {% endif %}
+              </div>
+            </div>
+            <a href="{% url 'detail_devoir' devoir.pk %}" class="btn btn-outline-primary btn-sm ms-3">
+              <i class="fas fa-eye me-1"></i>Voir
+            </a>
+          </div>
+
+          <!-- Barre de progression -->
+          {% if classe.nombre_eleves > 0 %}
+          <div class="mt-2">
+            <div class="progress" style="height:5px;border-radius:3px">
+              {% widthratio devoir.nombre_soumissions classe.nombre_eleves 100 as pct %}
+              <div class="progress-bar" style="width:{{ pct }}%;background:linear-gradient(90deg,#4F46E5,#0EA5E9)"></div>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="empty-state" style="padding:40px 20px">
+          <i class="fas fa-file-alt"></i>
+          <h6>Aucun devoir pour l'instant</h6>
+          <a href="{% url 'creer_devoir' classe.pk %}" class="btn btn-primary btn-sm mt-2">
+            <i class="fas fa-plus me-1"></i>Créer le premier devoir
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

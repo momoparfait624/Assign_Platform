@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block title %}Inscription — EduDevoir{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-4">
+  <div class="col-md-7">
+
+    <div class="text-center mb-4" data-aos="fade-down">
+      <h2 style="font-weight:700;color:#1E1B4B">Créer un compte</h2>
+      <p class="text-muted">Rejoignez EduDevoir en tant qu'enseignant ou élève</p>
+    </div>
+
+    <div class="card p-4" data-aos="fade-up">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- Choix du rôle -->
+        <div class="mb-4">
+          <label class="form-label fw-600">Je suis</label>
+          <div class="d-flex gap-3">
+            <label class="flex-fill">
+              <input type="radio" name="role" value="enseignant" class="d-none role-radio" id="r-ens">
+              <div class="role-card text-center p-3 border rounded-3" style="cursor:pointer;transition:all 0.2s" onclick="selectRole('enseignant')">
+                <i class="fas fa-chalkboard-teacher fa-2x mb-2" style="color:#4F46E5"></i>
+                <div class="fw-600">Enseignant</div>
+                <small class="text-muted">Je donne des devoirs</small>
+              </div>
+            </label>
+            <label class="flex-fill">
+              <input type="radio" name="role" value="eleve" class="d-none role-radio" id="r-el">
+              <div class="role-card text-center p-3 border rounded-3" style="cursor:pointer;transition:all 0.2s" onclick="selectRole('eleve')">
+                <i class="fas fa-user-graduate fa-2x mb-2" style="color:#0EA5E9"></i>
+                <div class="fw-600">Élève</div>
+                <small class="text-muted">Je reçois des devoirs</small>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Nom</label>
+            <input type="text" name="nom" class="form-control" placeholder="Votre nom" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Prénom</label>
+            <input type="text" name="prenom" class="form-control" placeholder="Votre prénom" required>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Adresse email</label>
+            <input type="email" name="email" class="form-control" placeholder="votre@email.com" required>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Établissement</label>
+            <input type="text" name="etablissement" class="form-control" placeholder="Nom de votre établissement">
+          </div>
+          <div class="col-12" id="matricule-field">
+            <label class="form-label">Matricule <span class="text-muted">(élèves)</span></label>
+            <input type="text" name="matricule" class="form-control" placeholder="Votre matricule">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Mot de passe</label>
+            <input type="password" name="mot_de_passe" class="form-control" placeholder="••••••••" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Confirmer</label>
+            <input type="password" name="confirmer_mdp" class="form-control" placeholder="••••••••" required>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Photo de profil <span class="text-muted">(optionnel)</span></label>
+            <input type="file" name="avatar" class="form-control" accept="image/*">
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100 py-2 mt-4">
+          <i class="fas fa-user-plus me-2"></i>Créer mon compte
+        </button>
+      </form>
+      <p class="text-center text-muted mt-3 mb-0" style="font-size:0.9rem">
+        Déjà un compte ? <a href="{% url 'connexion' %}" class="text-primary">Se connecter</a>
+      </p>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function selectRole(role) {
+  document.querySelectorAll('.role-card').forEach(c => {
+    c.style.borderColor = '#E5E7EB';
+    c.style.background = 'white';
+  });
+  const selected = event.currentTarget;
+  selected.style.borderColor = role === 'enseignant' ? '#4F46E5' : '#0EA5E9';
+  selected.style.background = role === 'enseignant' ? '#EEF2FF' : '#E0F2FE';
+  document.getElementById('matricule-field').style.display = role === 'eleve' ? 'block' : 'none';
+}
+document.getElementById('matricule-field').style.display = 'none';
+</script>
+{% endblock %}
