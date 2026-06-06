@@ -143,6 +143,8 @@ CELERY_BROKER_URL = config('REDIS_URL', default='redis://localhost:6379/0')
 # ── Production ─────────────────────────────────────────────────
 if not DEBUG:
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-    SECURE_SSL_REDIRECT = True
+    # Railway gère HTTPS lui-même — ne pas forcer la redirection
+    SECURE_SSL_REDIRECT = False
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
